@@ -10,7 +10,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 set(GAME_EXE "LabyrinthEscape2D")
 
 #setup EXE Target	
-add_executable(${GAME_EXE} "src/main.cpp")
+add_executable(${GAME_EXE} "src/main.cpp" "src/core/Application.cpp" "src/core/Window.cpp")
 
 #copy resources to bin/resources
 add_custom_command(TARGET ${GAME_EXE}

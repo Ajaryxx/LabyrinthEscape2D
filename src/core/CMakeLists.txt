@@ -1,0 +1,3 @@
+target_sources(${GAME_EXE} PRIVATE
+"Application.cpp"
+"Window.cpp")
