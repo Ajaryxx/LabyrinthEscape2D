@@ -1,0 +1,78 @@
+cmake_minimum_required(VERSION 3.31.6)
+
+project(LabyrinthEscape2D
+VERSION 0.0.1
+LANGUAGES CXX)
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+
+#Proj variables
+set(GAME_EXE "LabyrinthEscape2D")
+
+#setup EXE Target	
+add_executable(${GAME_EXE} "src/main.cpp")
+
+#copy resources to bin/resources
+add_custom_command(TARGET ${GAME_EXE}
+POST_BUILD
+COMMAND "${CMAKE_COMMAND}" -E copy
+"${CMAKE_SOURCE_DIR}/resources"
+"${CMAKE_SOURCE_DIR}/bin/")
+
+#set Windows subsystem if release
+if(WIN32)
+    target_link_options(${GAME_EXE} PRIVATE
+        "$<$<CONFIG:Release>:/SUBSYSTEM:WINDOWS>"
+    )
+endif()
+
+#add support for __VA_OPT__ macro
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+target_compile_options(${GAME_EXE} PUBLIC /Zc:preprocessor)
+endif()
+
+#set properties
+set_target_properties(${GAME_EXE} PROPERTIES
+CXX_STANDARD 23
+CXX_STANDARD_REQUIRED ON
+CXX_EXTENSIONS OFF)
+
+#fetch needed libraries
+include(FetchContent)
+
+FetchContent_Declare(
+	sfml
+	GIT_REPOSITORY https://github.com/SFML/SFML
+	GIT_TAG 3.0.2
+	GIT_SHALLOW TRUE
+)
+FetchContent_Declare(
+	tgui
+	GIT_REPOSITORY https://github.com/texus/TGUI/
+	GIT_TAG v1.12.0
+	GIT_SHALLOW TRUE
+)
+#---using imgui for this project?---
+
+#set up library configs
+set(SFML_BUILD_NETWORK OFF)
+FetchContent_MakeAvailable(sfml)
+set(TGUI_BACKEND "SFML_GRAPHICS")
+set(SFML_DIR ${SFML_SOURCE_DIR})
+set(TGUI_BUILD_GUI_BUILDER OFF)
+FetchContent_MakeAvailable(tgui)
+
+#link with EXE
+target_include_directories(${GAME_EXE} PRIVATE "include/")
+target_link_libraries(${GAME_EXE} PRIVATE sfml-graphics sfml-window sfml-audio sfml-system TGUI::TGUI)
+target_precompile_headers(${GAME_EXE} PRIVATE "include/PCH.hpp")
+
+#set mode
+target_compile_definitions(${GAME_EXE} PRIVATE 
+$<$<CONFIG:Debug>:__DEBUG>
+$<$<CONFIG:Release>:__RELEASE>)
+
+target_compile_definitions(${GAME_EXE} PRIVATE SFML_STATIC TGUI_STATIC)
+
+
+add_subdirectory(src)
